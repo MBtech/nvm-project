@@ -5,6 +5,7 @@ import os, signal
 import subprocess
 
 app = Celery('tasks', backend='amqp',broker='amqp://mb:guest@mcnode01/host')
+pdir = 'files/'
 
 @app.task(ignore_result=True)
 def get_time():
@@ -22,16 +23,22 @@ def gen_prime(x):
     return results
 
 @app.task
-def start_task():
+def start_task(tid):
     print "Starting the programs"
-    proc = subprocess.Popen(['java', '-jar','./hello.jar'])
+    proc = subprocess.Popen(['java', '-jar','./hello.jar', tid])
     print "PID:", proc.pid
     #print "Return code:", proc.wait()
     return proc.pid
 
 @app.task
-def kill_task(pid):
+def kill_task(tid, pid):
+    os.remove(pdir+tid)
     proc = subprocess.Popen(['kill', '-9', str(pid)])
     print "kill the process " + str(pid)
 
 
+@app.task
+def take_snapshot(tid):
+    target = open(pdir+tid, 'w')
+    target.write('fail')
+    
