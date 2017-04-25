@@ -1,0 +1,4 @@
+[rabbitmq]
+mcnode01 rabbitmq_master=true
+mcnode05
+mcnode06

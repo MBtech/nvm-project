@@ -1,0 +1,4 @@
+rabbitmq_vhosts:
+  - vhost: /vhost1
+    user: vhost1
+    password: vhost1
