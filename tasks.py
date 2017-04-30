@@ -3,6 +3,7 @@ import time
 import random
 import os, signal
 import subprocess
+import shutil
 
 app = Celery('tasks', backend='amqp',broker='amqp://mb:guest@mcnode01/host')
 pdir = 'files/'
@@ -23,22 +24,30 @@ def gen_prime(x):
     return results
 
 @app.task
+def cleanup():
+    shutil.rmtree(pdir)
+
+@app.task
 def start_task(tid):
+    if os.path.exists(pdir+str(tid)):
+        os.remove(pdir+str(tid))
     print "Starting the programs"
-    proc = subprocess.Popen(['java', '-jar','./hello.jar', tid])
+    proc = subprocess.Popen(['java', '-jar','./hello.jar', tid, '&'])
     print "PID:", proc.pid
     #print "Return code:", proc.wait()
     return proc.pid
 
 @app.task
 def kill_task(tid, pid):
-    os.remove(pdir+tid)
     proc = subprocess.Popen(['kill', '-9', str(pid)])
     print "kill the process " + str(pid)
 
 
 @app.task
-def take_snapshot(tid):
-    target = open(pdir+tid, 'w')
+def snapshot_task(tid):
+    if not os.path.exists(pdir):
+        os.makedirs(pdir)
+    target = open(pdir+str(tid), 'w')
     target.write('fail')
+    print "Snapshot requested"
     

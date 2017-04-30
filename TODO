@@ -1,0 +1,3 @@
+remove google-cluster
+Add the code to let the worker know where to store the snapshot (remote node's id)
+
