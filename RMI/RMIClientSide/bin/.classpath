@@ -2,5 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="/Users/A_Y_M_A_N/Downloads/jsch-0.1.54.jar"/>
+	<classpathentry kind="lib" path="/Users/A_Y_M_A_N/Downloads/apache-ant-1.10.1/lib/ant-jsch.jar"/>
+	<classpathentry kind="lib" path="/Users/A_Y_M_A_N/Downloads/apache-ant-1.10.1/lib/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="/Users/A_Y_M_A_N/Downloads/apache-ant-1.10.1/lib/ant.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

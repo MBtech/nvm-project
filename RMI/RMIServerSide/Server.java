@@ -11,10 +11,8 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
 	private ArrayList<ClientInterface> clients;
 	
 	
-	
 	protected Server() throws RemoteException {
-		this.clients = new ArrayList<ClientInterface>();
-		
+		this.clients = new ArrayList<ClientInterface>();	
 	}
 
 	@Override
@@ -38,37 +36,5 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
 	public synchronized void printAccount(int clientID) throws RemoteException {
 		System.out.println("Client " + clientID + " has " + clients.get(clientID).getAmount());
 	}
-	
-//	public void run() {
-//		Scanner scanner = new Scanner(System.in);
-//		String message;
-//		
-//		while(true) {
-//			message = scanner.nextLine();
-//			String delims = "[ ]+";
-//			String[] tokens = message.split(delims);
-//
-//			try {
-//				
-//				//i.e. b hello everyone !
-//				if (tokens[0].equals("b")) {
-//					broadcastMessage(tokens[1] + ": " + message.substring(2));
-//				}
-//				//i.e. t 1 1890 
-//				else if (tokens[0].equals("t")) {
-//					sendAmount(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
-//				}
-//				
-//				//i.e. p 0
-//				else if (tokens[0].equals("p")) {
-//					printAccount(Integer.parseInt(tokens[1]));
-//				}
-//				
-//			} catch (RemoteException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//	}
 	
 }

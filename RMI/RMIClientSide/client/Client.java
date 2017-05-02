@@ -1,3 +1,5 @@
+package client;
+
 import java.rmi.RemoteException;
 
 import java.rmi.server.UnicastRemoteObject;
@@ -9,7 +11,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 	
 	private ServerInterface server;
 	private String name = null;
-	private int account;
+	int account;
+	private Snapshot snapshot;
 //	private int ID;
 //	private static int count;
 	
@@ -36,6 +39,16 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 	@Override
 	public int getAmount() throws RemoteException {
 		return this.account; 
+		
+	}
+	
+	public String getName() throws RemoteException {
+		return this.name;
+	}
+	
+	public Snapshot getSnapshot() {
+		Snapshot currentSnapShot = new Snapshot(this);
+		return currentSnapShot;
 		
 	}
 	
