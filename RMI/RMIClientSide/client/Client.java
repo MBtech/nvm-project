@@ -1,28 +1,135 @@
 package client;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.rmi.RemoteException;
 
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Scanner;
+import java.util.Vector;
+
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+
 import common.ClientInterface;
 import common.ServerInterface;
 
 public class Client extends UnicastRemoteObject implements ClientInterface{
-	
+
 	private ServerInterface server;
-	private String name = null;
+	private int id;
 	int account;
+	InputParameters snapshotParams;
 	private Snapshot snapshot;
-//	private int ID;
-//	private static int count;
-	
-	protected Client(String name, ServerInterface server) throws RemoteException {
-		this.name = name;
+	static int ID = 0;
+	//	private int ID;
+	//	private static int count;
+
+	protected Client(ServerInterface server, InputParameters inputParams) throws RemoteException {
+
+		// if there is a current snapshot that matches the retrievel node, then use it
+		// Otherwise, start a new instance
 		this.server = server;
-		this.server.registerClient(this);
-		this.account = 0;
-//		this.ID = count;
-//		count++;
+		this.id = Integer.parseInt(inputParams.retrieval_node);
+		this.snapshotParams = inputParams;
+
+		if(inputParams.state == "0") {
+			
+			
+			this.server.registerClient(this);
+			this.account = 0;
+			this.snapshot = new Snapshot(this);
+		}
+		else {
+			ClientInitModule();
+		}
+
+
+	}
+
+	public void ClientInitModule() throws RemoteException {
+		// read remote snapshot file on the NVM node
+		JSch jsch = new JSch();
+		Session session = null;
+		FileReader reader =null;
+		BufferedReader buffer = null;
+
+		String srvrSSH = "kw60174.cbrc.kaust.edu.sa";
+		String userSSH = "yourun"; 
+		String pswdSSH = "yourpass";
+		String remoteDir = "/home/alkhalaa/testSCP";
+		String prevLine = null;
+
+		// TODO: optimize & refactor
+		try 
+		{
+
+			session = jsch.getSession(userSSH, srvrSSH);
+			java.util.Properties config = new java.util.Properties(); 
+			config.put("StrictHostKeyChecking", "no");
+			session.setConfig(config);  
+			session.setPassword(pswdSSH);                
+			session.connect();              
+			Channel channel = (Channel) session.openChannel("sftp");
+			((com.jcraft.jsch.Channel) channel).connect();
+			ChannelSftp sftpChannel = (ChannelSftp) channel;
+			System.out.println("Is connected to IP:"+((com.jcraft.jsch.Channel) channel).isConnected());
+			Vector ls=sftpChannel.ls(remoteDir);
+//			for(int i=0;i<ls.size();i++){
+//				System.out.println("Ls:"+ls.get(i));
+//			}
+			sftpChannel.cd(remoteDir);             
+			File file = new File("snapshot00");
+			sftpChannel.get("snapshot00");              
+			reader = new FileReader(file);
+			buffer = new BufferedReader(reader);                
+			String getLine = "";
+			prevLine = getLine;
+			while ((getLine = buffer.readLine())!=null)
+			{
+				prevLine = getLine;
+//				System.out.println("Line: "+getLine);
+			}
+			System.out.println(prevLine);
+			
+			sftpChannel.exit();             
+			session.disconnect();
+		}
+		catch (JSchException e) {
+			e.printStackTrace();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		} 
+		finally{
+			try{
+				if(reader!=null)
+					reader.close();
+				if(buffer!=null)
+					buffer.close();
+			}
+			catch(Exception e){
+				System.out.println("Exception:"+e);
+			}
+		}
+		
+		initClient(prevLine.split(","));
+	}
+
+	void initClient(String[] params) throws RemoteException {
+		String snapshotCount = params[0];
+		String ClientID = params[1];
+		String account = params[2];
+		
+		this.account = Integer.parseInt(account.trim());
+		this.snapshot = new Snapshot(this);
+		
+		
 		
 		
 	}
@@ -30,59 +137,30 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 	public void retrieveMessage(String message) throws RemoteException {
 		System.out.println(message);
 	}
-	
+
 	@Override
 	public void retrieveAmount(int amount) throws RemoteException {
 		account += amount;
 	}
-	
+
 	@Override
 	public int getAmount() throws RemoteException {
 		return this.account; 
-		
+
 	}
-	
-	public String getName() throws RemoteException {
-		return this.name;
+
+	public int getName() throws RemoteException {
+		return this.id;
 	}
-	
+
+	public String getSnapshotFilename() {
+		return this.snapshotParams.snapshot_filename;
+
+	}
+
 	public Snapshot getSnapshot() {
-		Snapshot currentSnapShot = new Snapshot(this);
-		return currentSnapShot;
-		
+		return this.snapshot;
+
 	}
-	
-	
-//	public void run() {
-//		Scanner scanner = new Scanner(System.in);
-//		String message;
-//		
-//		while(true) {
-//			message = scanner.nextLine();
-//			String delims = "[ ]+";
-//			String[] tokens = message.split(delims);
-//
-//			try {
-//				
-//				//i.e. b hello everyone !
-//				if (tokens[0].equals("b")) {
-//					server.broadcastMessage(name + ": " + message.substring(2));
-//				}
-//				//i.e. t 1 1890 
-//				else if (tokens[0].equals("t")) {
-//					server.sendAmount(Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]));
-//				}
-//				
-//				//i.e. p 0
-//				else if (tokens[0].equals("p")) {
-//					server.printAccount(Integer.parseInt(tokens[1]));
-//				}
-//				
-//			} catch (RemoteException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//	}
 
 }

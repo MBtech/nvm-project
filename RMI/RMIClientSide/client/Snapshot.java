@@ -18,25 +18,22 @@ import com.jcraft.jsch.SftpException;
 
 public class Snapshot {
 	
-	private static String pass = "Ayman1234a";
+	private static String pass = "yourpass";
 	static int count = 0;
-	int snapshotID;
+	int snapshotID; // the same as the client's ID
+	int snapshotCount; // a monotonically increasing number starting from zerp
 	Client client;
 	String filename;
 	String noise; 	// holding extra noise to increase the size of the snapshot
 	
 	
-	public Snapshot(Client client)
+	public Snapshot(Client client) throws RemoteException
 	{
-		this.snapshotID = count++;
 		this.client = client;
+		this.snapshotID = this.client.getName();
 		this.noise = "This is just some noise";
-		try {
-			this.filename = "snapshots" + client.getName();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.filename = this.client.getSnapshotFilename();
+		this.snapshotCount = 0;
 	}
 	
 
@@ -46,9 +43,9 @@ public class Snapshot {
 		BufferedWriter out = null;
 		try  
 		{
-		    FileWriter fstream = new FileWriter(filename, true); //true tells to append data.
+		    FileWriter fstream = new FileWriter(filename, true); 
 		    out = new BufferedWriter(fstream);
-		    out.write(snapshotID + ", " + client.getName() + ", " + client.getAmount() + "\n");
+		    out.write(this.snapshotCount++ + ", " + client.getName() + ", " + client.getAmount() + "\n");
 		}
 		catch (IOException e)
 		{
@@ -71,29 +68,26 @@ public class Snapshot {
 	
 	public void RemoteWriteToNVM() throws JSchException, IOException, SftpException {
 		
+		//TODO: optimize
 		org.apache.tools.ant.taskdefs.optional.ssh.Scp scp = new Scp();
 		int portSSH = 22;
 		String srvrSSH = "kw60174.cbrc.kaust.edu.sa";
-		String userSSH = "alkhalaa"; 
-		String pswdSSH = pass;//new String ( jPasswordField1.getPassword() );
-		String localFile = "/Users/A_Y_M_A_N/Documents/workspace/RMI/RMIClientSide/bin/snapshots" + client.getName();
+		String userSSH = "yourun"; 
+		String pswdSSH = pass;
+		String localFile = "/Users/A_Y_M_A_N/Documents/workspace/RMI/RMIClientSide/bin/" + this.filename;
 		String remoteDir = "/home/alkhalaa/testSCP";
 
-		System.out.println("SCPing " + localFile + "to Remote NVM node...");
-		
+		System.out.println("SCPing " + localFile + " to Remote NVM node...");
+		// Meeting notes:
+		// command line: DONT // fsync to flush the filesystem buffers
+		// When SCPing stuff, open a pipe and keep it open
 		scp.setPort( portSSH );
 		scp.setLocalFile( localFile );
 		scp.setTodir( userSSH + ":" + pswdSSH + "@" + srvrSSH + ":" + remoteDir );
 		scp.setProject( new Project() );
 		scp.setTrust( true );
 		scp.execute();
-		
-//		Copy copy = new Copy("kw60174.cbrc.kaust.edu.sa","alkhalaa", pass);
-//		Path path = Paths.get("/Users/A_Y_M_A_N/Documents/workspace/RMI/RMIClientSide/bin/snapshotCommand.txt");
-//		copy.cp(path, "/home/alkhalaa/testSCP");
-		
-		
-			
+
 	}
 	
 

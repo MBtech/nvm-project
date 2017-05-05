@@ -35,11 +35,11 @@ public class FileWatcher extends Thread {
         // Write the snapshot to NVM
     	System.out.println("file changed !");
     	Snapshot snaphotNVM = client.getSnapshot();
-    	
     	snaphotNVM.takeSnapShot();
     	
     }
-
+    
+    // boilerplate code to listen to changes to a file
     @Override
     public void run() {
         try (WatchService watcher = FileSystems.getDefault().newWatchService()) {

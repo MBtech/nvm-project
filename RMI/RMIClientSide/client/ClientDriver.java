@@ -74,12 +74,14 @@ public class ClientDriver {
 	}
 	
 	public static void main (String[] args) throws MalformedURLException, RemoteException, NotBoundException {
-		System.out.println("This is a new client");
+		
+		System.out.println("Starting a new client...");
 		String serverURL = "rmi://localhost/RMIServer";
 		ServerInterface server = (ServerInterface) Naming.lookup(serverURL);		
-		Client newClient = new Client(args[0], server);
-	
-		new FileWatcher(new File("/Users/A_Y_M_A_N/Documents/workspace/RMI/RMIClientSide/bin/snapshotCommand.txt"), newClient).start();
+		
+		InputParameters input = new InputParameters(args[0], args[1], args[2], args[3]);
+		Client newClient = new Client(server, input);
+		new FileWatcher(new File("/Users/A_Y_M_A_N/Documents/workspace/RMI/RMIClientSide/bin/"+  newClient.snapshotParams.event_filename), newClient).start();
 		readInput(server);
 		
 	}
