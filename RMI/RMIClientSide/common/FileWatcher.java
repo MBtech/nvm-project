@@ -25,7 +25,8 @@ public class FileWatcher extends Thread {
     public FileWatcher(File file, Client client) {
     	this.client = client;
         this.file = file;
-    	System.out.println("file changer constructor");
+    	System.out.println("file watcher constructor");
+    	System.out.println("Listening for changes in: " + file.toPath());
     }
 
     public boolean isStopped() { return stop.get(); }
@@ -44,7 +45,7 @@ public class FileWatcher extends Thread {
     public void run() {
         try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
             Path path = file.toPath().getParent();
-            System.out.println(file.toPath());
+//            System.out.println(file.toPath());
             path.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY);
             while (!isStopped()) {
                 WatchKey key;

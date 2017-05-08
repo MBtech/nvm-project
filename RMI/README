@@ -1,0 +1,13 @@
+- To start the server:
+java -jar RMI_Server.jar
+
+- To start a client:
+java -jar RMI_Client.jar <event_watch> <snapshot_filename> <retrieval_node> <state> <$PWD> <gd_file>
+
+
+<event_watch>: the file whose changes are taken as a signal to take a snapshot
+<snapshot_filename>: the snapshot content for a given client
+<retrieval_node>: is a unique number assigned to each client
+<state>: if it is 0, start a new fresh instance, other wise, recover from <retrieval_node>
+<$PWD>: current directory, just type $PWD
+<gd_file>: the gradient decsent file that contains the sample space for the algorithm
