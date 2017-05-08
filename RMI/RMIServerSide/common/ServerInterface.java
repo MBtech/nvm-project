@@ -10,5 +10,6 @@ public interface ServerInterface extends Remote{
 	void broadcastMessage(String message) throws RemoteException;
 	void sendAmount(int fromClientID, int toClientID, int amount) throws RemoteException;
 	void printAccount(int clientID) throws RemoteException;
+	
 
 }

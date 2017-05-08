@@ -18,7 +18,7 @@ import com.jcraft.jsch.SftpException;
 
 public class Snapshot {
 	
-	private static String pass = "yourpass";
+	private static String pass = "yourps";
 	static int count = 0;
 	int snapshotID; // the same as the client's ID
 	int snapshotCount; // a monotonically increasing number starting from zerp
@@ -45,7 +45,13 @@ public class Snapshot {
 		{
 		    FileWriter fstream = new FileWriter(filename, true); 
 		    out = new BufferedWriter(fstream);
-		    out.write(this.snapshotCount++ + ", " + client.getName() + ", " + client.getAmount() + "\n");
+//		    out.write(this.snapshotCount++ + ", " + client.getName() + ", " + client.getAmount() + "\n");
+		    
+		    
+		    out.write(this.snapshotCount++ + ", " + client.getName() + ", ");
+		    double[] thetas = client.get_thetas();
+		    out.write(Double.toString(thetas[0]) +", " + Double.toString(thetas[1]) +", " +  Double.toString(thetas[2]) + "\n");
+		    
 		}
 		catch (IOException e)
 		{
@@ -63,7 +69,7 @@ public class Snapshot {
 		    }
 		}
 		
-		RemoteWriteToNVM();
+//		RemoteWriteToNVM();
 	}
 	
 	public void RemoteWriteToNVM() throws JSchException, IOException, SftpException {
@@ -72,9 +78,9 @@ public class Snapshot {
 		org.apache.tools.ant.taskdefs.optional.ssh.Scp scp = new Scp();
 		int portSSH = 22;
 		String srvrSSH = "kw60174.cbrc.kaust.edu.sa";
-		String userSSH = "yourun"; 
+		String userSSH = "alkhalaa"; 
 		String pswdSSH = pass;
-		String localFile = "/Users/A_Y_M_A_N/Documents/workspace/RMI/RMIClientSide/bin/" + this.filename;
+		String localFile = this.client.snapshotParams.watch  + "/" + this.filename;
 		String remoteDir = "/home/alkhalaa/testSCP";
 
 		System.out.println("SCPing " + localFile + " to Remote NVM node...");
