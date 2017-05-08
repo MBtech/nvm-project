@@ -28,11 +28,11 @@ def cleanup():
     shutil.rmtree(pdir)
 
 @app.task
-def start_task(tid):
+def start_task(tid, snapshot_file, retrieval_node, state):
     if os.path.exists(pdir+str(tid)):
         os.remove(pdir+str(tid))
     print "Starting the programs"
-    proc = subprocess.Popen(['java', '-jar','./hello.jar', tid, '&'])
+    proc = subprocess.Popen(['java', '-jar','./hello.jar', tid, 'snapshot_'+ str(snapshot_file), str(retrieval_node), str(state), '&'])
     print "PID:", proc.pid
     #print "Return code:", proc.wait()
     return proc.pid
@@ -44,10 +44,10 @@ def kill_task(tid, pid):
 
 
 @app.task
-def snapshot_task(tid):
+def snapshot_task(tid, retrieval_node):
     if not os.path.exists(pdir):
         os.makedirs(pdir)
     target = open(pdir+str(tid), 'w')
-    target.write('fail')
+    target.write(str(retrieval_node))
     print "Snapshot requested"
     

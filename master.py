@@ -41,7 +41,7 @@ def create_cluster(n,p):
 def setup_cluster(process_to_node):
     global tid 
     for i in process_to_node.keys():
-        res = start_task.apply_async(queue= 'node'+str(process_to_node[i]), args=(str(tid),))
+        res = start_task.apply_async(queue= 'node'+str(process_to_node[i]), args=(str(tid),tid,-1,0))
         while(not res.ready()):
             time.sleep(1)
         pid = res.get()
@@ -68,11 +68,11 @@ def kill_process(process, process_to_pid, process_to_node, pid_to_tid, node):
 
 
 #Issue the instruction to take the snapshot of the process state
-def take_snapshot(process, process_to_pid, process_to_node, pid_to_tid, node):
+def take_snapshot(process, process_to_pid, process_to_node, pid_to_tid, node, retrieval_node):
     if process in process_to_pid.keys():
         pid = process_to_pid[process]
         if pid in pid_to_tid.keys():
-            snapshot_task.apply_async(queue='node'+str(process_to_node[process]), args=(pid_to_tid[pid],))
+            snapshot_task.apply_async(queue='node'+str(process_to_node[process]), args=(pid_to_tid[pid],retrieval_node))
 
 #Get node with least processes
 def get_pref_node(node):
@@ -86,10 +86,10 @@ def assign_node(process, process_to_node, node):
     process_to_node[process] = n
     return process_to_node
 
-def start_process(process, process_to_pid, process_to_node, pid_to_tid, node):
+def start_process(process, process_to_pid, process_to_node, pid_to_tid, node, retrieval_node,state):
     global tid
     assign_node(process, process_to_node,node)
-    res = start_task.apply_async(queue='node'+str(process_to_node[process]), args=(str(tid),))
+    res = start_task.apply_async(queue='node'+str(process_to_node[process]), args=(str(tid),tid,retrieval_node,state))
     while(not res.ready()):
         time.sleep(1)
     pid = res.get()
@@ -119,7 +119,7 @@ def start_test(n):
 
 # Currently this code is directly testing the tasks.py code
 if __name__ == "__main__":
-    n = 3
+    n = 1
     global node
     for i in range(0, n):
         node[i] = list()
