@@ -37,8 +37,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 	private static final double epsilon = Double.MIN_VALUE;
 	private double theta0 = 0.1;
 	private double theta1 = 0.1;
-	private int maxIterations = 1_000_000;
-	private int remainingIterations = 1_000_000;
+	private int maxIterations = 1_000_000_000;
+	private int remainingIterations = 1_000_000_000;
 	private ServerInterface server;
 	private int id;
 	int account;
@@ -56,6 +56,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 		this.id = Integer.parseInt(inputParams.retrieval_node);
 		this.snapshotParams = inputParams;
 		
+		
+		
 		if(Integer.parseInt(inputParams.state) == 0) {
 
 			this.server.registerClient(this);
@@ -64,7 +66,17 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 //			this.gradDescent(0.1,0.1,"gd_points", 1_000_000);
 		}
 		else {
-			ClientInitModule();
+			File snapshotFile = new File(inputParams.snapshot_filename);
+						
+			if(!snapshotFile.exists()) { 
+				System.out.println("Snapshot file doesn't exist, starting a new instance...");
+				this.server.registerClient(this);
+				this.account = 0;
+				this.snapshot = new Snapshot(this);
+			}
+			else {
+				ClientInitModule();
+			}
 		}
 	}
 	
@@ -190,7 +202,7 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 	public void gradDescent(double middleTheta0, double middleTheta1, String fileName, int remainingIterations) throws JSchException, IOException, SftpException {
 
 		List<Point2D> data = loadDataFromFile(fileName);
-		double alpha = 0.0000001;
+		double alpha = 0.000000001;
 		Point2D finalTheta = singleVarGradientDescent(data, middleTheta0, middleTheta1, alpha, remainingIterations);
 		System.out.printf("theta0 = %f, theta1 = %f", finalTheta.getX(), finalTheta.getY());
 		this.snapshot.takeSnapShot();
@@ -207,9 +219,6 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 		for (int i = 0 ; i < this.maxIterations; i++) {
 			if (hasConverged(oldTheta0, theta0) && hasConverged(oldTheta1, theta1))
 				break;
-			if(i==5000){
-				int j = 0;
-			}
 			oldTheta0 = theta0;
 			oldTheta1 = theta1;
 

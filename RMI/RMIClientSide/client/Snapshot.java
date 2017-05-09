@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.optional.ssh.Scp;
@@ -34,6 +37,52 @@ public class Snapshot {
 		this.noise = "This is just some noise";
 		this.filename = this.client.getSnapshotFilename();
 		this.snapshotCount = 0;
+		
+		double[] thetas = client.get_thetas();
+		ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+		exec.scheduleAtFixedRate(new Runnable() {
+		  @Override
+		  public void run() {
+			  System.out.println("Taking Periodic snapshot...");
+			  this.takePeriodicSnapShot();
+		  }
+
+		private void takePeriodicSnapShot() {
+			// TODO Auto-generated method stub
+			BufferedWriter out = null;
+			try  
+			{
+			    FileWriter fstream = new FileWriter(filename, true); 
+			    out = new BufferedWriter(fstream);
+//			    out.write(this.snapshotCount++ + ", " + client.getName() + ", " + client.getAmount() + "\n");
+			    
+			    
+			    out.write(client.getSnapshot().snapshotCount++ + ", " + client.getName() + ", ");
+			    double[] thetas = client.get_thetas();
+			    out.write(Double.toString(thetas[0]) +", " + Double.toString(thetas[1]) +", " +  Double.toString(thetas[2]) + "\n");
+			    
+			}
+			catch (IOException e)
+			{
+			    System.err.println("Error: " + e.getMessage());
+			}
+			finally
+			{
+			    if(out != null) {
+			        try {
+						out.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			    }
+			}
+			
+			
+			
+			
+		}
+		}, 0, 60, TimeUnit.SECONDS);
 	}
 	
 
