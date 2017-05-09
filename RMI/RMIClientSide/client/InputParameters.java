@@ -12,7 +12,7 @@ public class InputParameters {
 	
 	public InputParameters(String event, String snapshot, String retreival, String state, String watch, String gd_file) {
 		this.event_filename = event;
-		this.snapshot_filename = snapshot + retreival;
+		this.snapshot_filename = snapshot;
 		this.retrieval_node = retreival;
 		this.state = state;
 		this.watch = watch;
