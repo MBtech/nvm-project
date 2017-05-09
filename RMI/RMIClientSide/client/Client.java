@@ -37,8 +37,8 @@ public class Client extends UnicastRemoteObject implements ClientInterface{
 	private static final double epsilon = Double.MIN_VALUE;
 	private double theta0 = 0.1;
 	private double theta1 = 0.1;
-	private int maxIterations = 1_000_000_000;
-	private int remainingIterations = 1_000_000_000;
+	private int maxIterations = 1_000_000;
+	private int remainingIterations = 1_000_000;
 	private ServerInterface server;
 	private int id;
 	int account;
