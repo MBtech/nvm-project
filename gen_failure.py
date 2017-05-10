@@ -10,7 +10,7 @@ import time
 prf = 0.1 #Probability of multiple machine failing at the same time
 rack = 3 # No. of machine for simultaneous failure scenario
 N = 9 # Total Number of machines/processes
-mttf = 20 # Time between failures (in sec)
+mttf = 25 # Time between failures (in sec)
 T = 300 #1hr (trace duration)
 
 failure_file = open('failures.csv', 'wb')
@@ -56,7 +56,7 @@ for t in list(np.arange(0,T,mttf)):
 #    print reinsert 
     for e in reinsert:
         bisect.insort(cluster, e)
-        row = (t+10, e, 2)
+        row = (t+1, e, 2)
         writer.writerow(row)    
     
     reinsert = list()

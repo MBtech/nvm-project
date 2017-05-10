@@ -5,6 +5,7 @@ import pandas as pd
 #import time_between_failures as tf
 import random
 import failure_gen
+import sys
 
 parent_dir = 'google-cluster/'
 prob = 0.8 # Probability of predicting failure correctly
@@ -86,27 +87,25 @@ def assign_node(process, process_to_node, node):
     process_to_node[process] = n
     return process_to_node
 
-def start_process(process, process_to_pid, process_to_node, pid_to_tid, node, retrieval_node,state):
-    global tid
+def start_process(process, process_to_pid, process_to_node, pid_to_tid, node, retrieval_node,state): 
     assign_node(process, process_to_node,node)
-    res = start_task.apply_async(queue='node'+str(process_to_node[process]), args=(str(tid),tid,retrieval_node,state))
+    res = start_task.apply_async(queue='node'+str(process_to_node[process]), args=(str(process-1), process-1,retrieval_node,state))
     while(not res.ready()):
         time.sleep(1)
     pid = res.get()
     process_to_pid[process] = pid
-    pid_to_tid[pid] = tid
-    tid +=1 
+    pid_to_tid[pid] = process-1
 
 # TODO: Make use of this function for proper testing
 # Main function to start the test
-def start_test(n):
+def start_test(n, prob):
     p  = 9
     
     process_to_node, node = create_cluster(n, p)
     print process_to_node
     process_to_pid, pid_to_tid = setup_cluster(process_to_node)
     
-    failure_gen.execute_events(process_to_pid, process_to_node, pid_to_tid, node)
+    failure_gen.execute_events(process_to_pid, process_to_node, pid_to_tid, node, prob)
     #TODO: Failure loop
     #while(1):
         #TODO: Get Failure
@@ -121,8 +120,9 @@ def start_test(n):
 if __name__ == "__main__":
     n = 1
     global node
+    prob = float(sys.argv[1])
     for i in range(0, n):
         node[i] = list()
 
-    start_test(n)
+    start_test(n, prob)
 

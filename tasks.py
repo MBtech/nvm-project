@@ -8,31 +8,16 @@ import shutil
 app = Celery('tasks', backend='amqp',broker='amqp://mb:guest@mcnode01/host')
 pdir = 'files/'
 
-@app.task(ignore_result=True)
-def get_time():
-    print time.time()
-
-@app.task
-def gen_prime(x):
-    multiples = []
-    results = []
-    for i in range(2,x+1):
-        if i not in multiples:
-            results.append(i)
-            for j in xrange(i*i, x+1, i):
-                multiples.append(j)
-    return results
-
 @app.task
 def cleanup():
     shutil.rmtree(pdir)
 
 @app.task
 def start_task(tid, snapshot_file, retrieval_node, state):
-    if os.path.exists(pdir+str(tid)):
-        os.remove(pdir+str(tid))
+    if os.path.exists(str(tid)):
+        os.remove(str(tid))
     print "Starting the programs"
-    proc = subprocess.Popen(['java', '-jar','./hello.jar', tid, 'snapshot_'+ str(snapshot_file), str(retrieval_node), str(state), '&'])
+    proc = subprocess.Popen(['java', '-jar','./RMI/RMI_Client.jar', tid, 'snapshot_'+ str(snapshot_file), str(retrieval_node), str(state), '/home/ubuntu/bilal/nvm-project/', './RMI/RMIClientSide/RMI_Experiment/Client/gd_points', '&'])
     print "PID:", proc.pid
     #print "Return code:", proc.wait()
     return proc.pid
@@ -45,9 +30,9 @@ def kill_task(tid, pid):
 
 @app.task
 def snapshot_task(tid, retrieval_node):
-    if not os.path.exists(pdir):
-        os.makedirs(pdir)
-    target = open(pdir+str(tid), 'w')
+#    if not os.path.exists(pdir):
+#        os.makedirs(pdir)
+    target = open(str(tid), 'w')
     target.write(str(retrieval_node))
     print "Snapshot requested"
     
